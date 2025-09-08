@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OVMS Manifest v1",
+  "type": "object",
+  "required": ["schemaVersion", "mediaType", "name", "version"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "mediaType": {
+      "type": "string",
+      "const": "application/vnd.hypr.ovms.manifest.v1+json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "kernel": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "args": {
+          "type": "string"
+        }
+      },
+      "required": ["ref"]
+    },
+    "initrd": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string"
+        }
+      },
+      "required": ["ref"]
+    },
+    "diskLayers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["qcow2", "raw", "ovfms"]
+          },
+          "size": {
+            "type": "integer"
+          }
+        },
+        "required": ["ref", "format"]
+      }
+    },
+    "ramSnapshot": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string"
+        },
+        "compression": {
+          "type": "string",
+          "default": "lz4"
+        },
+        "preload_hint": {
+          "type": "boolean",
+          "default": false
+        },
+        "mlock_required": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["ref"]
+    },
+    "devices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "mmio_addr": {
+            "type": "string"
+          }
+        },
+        "required": ["type", "name"]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "platform": {
+          "type": "object",
+          "properties": {
+            "arch": {
+              "type": "string"
+            },
+            "uefi": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "runtimeHints": {
+      "type": "object",
+      "properties": {
+        "preferredRuntime": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "coldStartTargetMs": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

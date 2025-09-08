@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "mediaType": "application/vnd.hypr.ovms.manifest.v1+json",
+  "name": "hypr/ubuntu-base",
+  "version": "24.04",
+  "kernel": {
+    "ref": "sha256:kernel-digest",
+    "args": "console=ttyS0 root=/dev/vda1 rw"
+  },
+  "initrd": {
+    "ref": "sha256:initrd-digest"
+  },
+  "diskLayers": [
+    {
+      "ref": "sha256:base-layer",
+      "format": "qcow2",
+      "size": 2147483648
+    },
+    {
+      "ref": "sha256:diff-1",
+      "format": "qcow2",
+      "size": 33554432
+    }
+  ],
+  "ramSnapshot": {
+    "ref": "sha256:ram-snap",
+    "compression": "lz4",
+    "preload_hint": true,
+    "mlock_required": true
+  },
+  "devices": [
+    {
+      "type": "ivshmem",
+      "name": "mmio0",
+      "size": 67108864,
+      "mmio_addr": "0x10000000"
+    }
+  ],
+  "metadata": {
+    "author": "hypr",
+    "created": "2025-09-09T00:00:00Z",
+    "platform": {
+      "arch": "x86_64",
+      "uefi": false
+    }
+  },
+  "runtimeHints": {
+    "preferredRuntime": ["cherrybomb", "firecracker"],
+    "coldStartTargetMs": 10
+  }
+}
