@@ -1,65 +1,39 @@
-# Cherrybomb Runtime Adapter for OVMS
+# Runtime Adapter Guidance for OVMS
 
-## Overview
+This document provides generic guidance for mapping OVMS manifests to a virtual machine monitor (VMM) runtime. It avoids naming specific tools to keep the specification impartial.
 
-This document describes how to map OVMS manifest fields to Cherrybomb runtime start options. Cherrybomb is a hypothetical or specific VMM runtime; adapt the mapping to its CLI or API. Prefer implementing the OVMS Runtime Control API (OpenAPI at `spec/api/ovms-runtime.openapi.yaml`).
+## Kernel and Initrd
+- manifest.kernel.ref → runtime kernel path (pull blob from OCI if needed).
+- manifest.kernel.args → runtime boot/append arguments.
 
-## Mapping Manifest to Cherrybomb Start
-
-Use the manifest from examples/ubuntu-manifest.json as input. The adapter translates to Cherrybomb's expected flags (assuming CLI like hypr, but for Cherrybomb).
-
-### Kernel and Initrd
-- manifest.kernel.ref → Cherrybomb --kernel <path> (pull blob from OCI if needed).
-- manifest.kernel.args → Cherrybomb --cmdline <args>.
-
-### Disk Layers
+## Disk Layers
 - For each layer in manifest.diskLayers:
   - Pull blob to local path.
-  - Apply in order: Cherrybomb --disk <path> (backing file for diffs).
-  - Format: Map "qcow2" to Cherrybomb's format; fallback to raw.
+  - Apply in order (base first, diffs on top) using backing files or equivalent.
+  - Map format (e.g., qcow2/raw) to the runtime’s supported disk format.
 
-### RAM Snapshot
+## RAM Snapshot
 - If manifest.ramSnapshot.ref present:
-  - Pull blob, decompress (lz4).
-  - Cherrybomb --ram-snapshot <path> (preload to tmpfs if hint=true).
-  - mlock if mlock_required=true (use mlock syscall).
+  - Pull blob, decompress (e.g., lz4).
+  - Load/restore according to runtime capability; optionally preload into tmpfs if `preload_hint=true`.
+  - mlock if `mlock_required=true` and supported by the runtime.
 
-### Devices
+## Devices
 - For each device in manifest.devices:
-  - "ivshmem": Cherrybomb --ivshmem <name> --size <size> --addr <mmio_addr>.
-  - Other types: Map to Cherrybomb device flags or error if unsupported.
+  - Example: "ivshmem" → map to shared memory device per runtime syntax (name/size/mmio address).
+  - Return clear errors for unsupported device types.
 
-### Runtime Hints
-- manifest.runtimeHints.preferredRuntime: If "cherrybomb", proceed; else log warning.
-- manifest.runtimeHints.coldStartTargetMs: Log for monitoring, not used in start.
+## Runtime Hints
+- `runtimeHints.preferredRuntime` is advisory; adapters may ignore if not applicable.
+- `coldStartTargetMs` is informational for monitoring and tuning.
 
-### Example Start Command (CLI)
+## Example Start Flow (Generic)
+1. Pull all refs using an OCI client.
+2. Assemble disk chain and optional RAM snapshot.
+3. Launch the runtime with kernel/initrd/boot args and block devices.
+4. Expose a local control API implementing `spec/api/ovms-runtime.openapi.yaml` for status/logs/snapshot/stop.
 
-For the ubuntu-manifest.json:
-
-1. Pull all refs using OCI client.
-2. Decompress ram-snap if present.
-3. Cherrybomb command:
-   ```
-   cherrybomb \
-     --kernel /path/to/kernel \
-     --initrd /path/to/initrd \
-     --disk /path/to/base-layer.qcow2 \
-     --disk /path/to/diff-1.qcow2 \
-     --ram-snapshot /path/to/ram-snap \
-     --ivshmem mmio0 --size 67108864 --addr 0x10000000 \
-     --cmdline "console=ttyS0 root=/dev/vda1 rw"
-   ```
-
-## Implementation Notes
-
-- Prefer HTTP client implementing OVMS Runtime Control API over UNIX socket.
-- If using CLI, use Go exec.Command for Cherrybomb binary.
-- Handle errors if format not supported.
-- For integration with Huo: In VMM plugin, parse manifest, map to Cherrybomb, exec.
-- Future: If Cherrybomb has API, use HTTP client instead of CLI.
-
-## Limitations
-
-- Assume Cherrybomb supports qcow2 diffs and IVSHMEM.
-- No GPU or advanced devices in v0.1.
+## Notes
+- Prefer an HTTP client over UNIX socket implementing the OVMS Runtime Control API.
+- If using a CLI-based runtime, a thin shim can translate API calls to process invocations.
+- Handle unsupported features gracefully and document limitations.
