@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes how to map OVMS manifest fields to Cherrybomb runtime start options. Cherrybomb is a hypothetical or specific VMM runtime; adapt the mapping to its CLI or API.
+This document describes how to map OVMS manifest fields to Cherrybomb runtime start options. Cherrybomb is a hypothetical or specific VMM runtime; adapt the mapping to its CLI or API. Prefer implementing the OVMS Runtime Control API (OpenAPI at `spec/api/ovms-runtime.openapi.yaml`).
 
 ## Mapping Manifest to Cherrybomb Start
 
@@ -33,7 +33,7 @@ Use the manifest from examples/ubuntu-manifest.json as input. The adapter transl
 - manifest.runtimeHints.preferredRuntime: If "cherrybomb", proceed; else log warning.
 - manifest.runtimeHints.coldStartTargetMs: Log for monitoring, not used in start.
 
-### Example Start Command
+### Example Start Command (CLI)
 
 For the ubuntu-manifest.json:
 
@@ -53,7 +53,8 @@ For the ubuntu-manifest.json:
 
 ## Implementation Notes
 
-- Use Go exec.Command for Cherrybomb binary.
+- Prefer HTTP client implementing OVMS Runtime Control API over UNIX socket.
+- If using CLI, use Go exec.Command for Cherrybomb binary.
 - Handle errors if format not supported.
 - For integration with Huo: In VMM plugin, parse manifest, map to Cherrybomb, exec.
 - Future: If Cherrybomb has API, use HTTP client instead of CLI.
