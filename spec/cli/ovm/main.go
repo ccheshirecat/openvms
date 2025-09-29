@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 
 	"github.com/opencontainers/go-digest"
 	"github.com/oras-project/oras/pkg/content"
