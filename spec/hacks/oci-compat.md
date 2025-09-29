@@ -32,13 +32,12 @@ OVMS is designed to be compatible with OCI registries and tools, allowing reuse 
   - Docker: Use `docker load` for local, but for OVMS, use oras for custom types.
   - Workaround for Docker: Export as OCI tar, then use oras to push with media types.
 
-## Implementation in Huo
+## Implementation Notes (generic)
 
-In Huo's VMM plugin:
-- Use oras to pull manifest and blobs.
-- Parse manifest.json to get refs.
-- Fetch blobs with content.Fetch.
-- For disk layers, extract tar and apply as backing files.
-- For RAM snapshot, decompress and load into memory (runtime-specific).
+- Use ORAS-compatible clients to pull manifest and blobs.
+- Parse manifest.json to get refs and annotations.
+- Fetch blobs via OCI APIs; verify digests and signatures when present.
+- Apply disk layer chains via qcow2 backing files or equivalent.
+- For RAM snapshots, decompress and load per runtime capabilities.
 
 This ensures OVMS works with existing OCI tools while extending for VM artifacts.

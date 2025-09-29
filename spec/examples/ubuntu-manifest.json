@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "mediaType": "application/vnd.ovms.manifest.v1+json",
-  "name": "hypr/ubuntu-base",
+  "name": "example/ubuntu-base",
   "version": "24.04",
   "kernel": {
     "ref": "sha256:kernel-digest",
@@ -37,7 +37,7 @@
     }
   ],
   "metadata": {
-    "author": "hypr",
+    "author": "ovms",
     "created": "2025-09-09T00:00:00Z",
     "platform": {
       "arch": "x86_64",
@@ -45,7 +45,7 @@
     }
   },
   "runtimeHints": {
-    "preferredRuntime": ["cherrybomb", "firecracker"],
+    "preferredRuntime": ["generic"],
     "coldStartTargetMs": 10
   }
 }
