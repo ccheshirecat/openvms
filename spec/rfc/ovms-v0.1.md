@@ -88,6 +88,8 @@ gRPC alternative: Define protobuf with RPCs: Start(ManifestRef) returns Instance
 
 Rationale: Small surface for quick runtime implementation. In Huo vmm plugin, use http.Client to call runtime API after exec hypr.
 
+OpenAPI: A normative OpenAPI document is provided at `spec/api/ovms-runtime.openapi.yaml` describing request/response schemas for `/start`, `/stop`, `/snapshot`, `/status/{instance_id}`, and `/logs/{instance_id}`.
+
 ## 5 — CLI UX (ovm)
 Basic commands for standalone use (skeleton in cli/ovm/main.go):
 - ovm pull hypr/ubuntu-base:24.04 — pulls manifest + blobs to local cache.
@@ -101,7 +103,10 @@ CLI uses OCI distribution for push/pull; local cache in OCI layout extended with
 
 ## 6 — Security & policy
 - Runtimes honor Linux security: namespaces, seccomp, user namespaces for management processes.
-- Sign manifests with Cosign; Huo verifies on pull.
+- Sign manifests with Cosign; Huo verifies on pull. OVMS artifacts SHOULD use OCI 1.1 relationships:
+  - `artifactType` = `application/vnd.ovms.manifest.v1+json` for OVMS manifests.
+  - Use `subject` and the Referrers API to relate signatures, SBOMs, and snapshots to the base manifest.
+  - Verification policy MAY require trusted signatures before runtime admission.
 - Access control: Registry ACLs + runtime-local policies (e.g., disallow unsigned ramSnapshot).
 - In Huo: Validate signatures in vmm plugin before start.
 
