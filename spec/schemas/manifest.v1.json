@@ -10,7 +10,7 @@
     },
     "mediaType": {
       "type": "string",
-      "const": "application/vnd.hypr.ovms.manifest.v1+json"
+      "const": "application/vnd.ovms.manifest.v1+json"
     },
     "name": {
       "type": "string"

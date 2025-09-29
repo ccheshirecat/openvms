@@ -17,7 +17,7 @@ Define a portable Open Virtual Machine Spec (OVMS) for packaging, distributing, 
 
 {
   "schemaVersion": 1,
-  "mediaType": "application/vnd.hypr.ovms.manifest.v1+json",
+  "mediaType": "application/vnd.ovms.manifest.v1+json",
   "name": "hypr/ubuntu-base",
   "version": "24.04",
   "kernel": {
@@ -57,12 +57,12 @@ Notes
 - In Huo: Workload metadata includes "ovms_manifest": {"ref": "myregistry.com/ovms/ubuntu:24.04"}; vmm plugin fetches and applies.
 
 ## 2 — Media Types & OCI mapping
-- Manifest media type: application/vnd.hypr.ovms.manifest.v1+json (Huo parses with JSON schema).
-- RAM snapshot blob media type: application/vnd.hypr.ovms.ramsnap.v1+lz4 (decompress with lz4).
+- Manifest media type: application/vnd.ovms.manifest.v1+json (parsed via JSON schema). For OCI v1.1, set artifactType to this value and use subject for relationships.
+- RAM snapshot blob media type: application/vnd.ovms.ramsnap.v1+lz4 (decompress with lz4).
 - Disk layer media type: application/vnd.oci.image.layer.v1.tar with annotation ovms.format=qcow2/raw/ovfms.
-- Kernel blob type: application/vnd.hypr.ovms.kernel.v1.
-- Initrd blob type: application/vnd.hypr.ovms.initrd.v1.
-- Use OCI distribution API (v2) for push/pull. Huo uses oras/pkg for integration. New media types registered for OVMS while keeping OCI compatibility.
+- Kernel blob type: application/vnd.ovms.kernel.v1.
+- Initrd blob type: application/vnd.ovms.initrd.v1.
+- Use OCI distribution API (v2) for push/pull with ORAS. Prefer OCI 1.1 fields (artifactType, subject/referrers) for relationships.
 
 ## 3 — Layering model / snapshot model
 - Disk layers: Block-level diffs (qcow2 backing-file style) for dedupe and lazy fetch. Huo vmm plugin applies layers before start.

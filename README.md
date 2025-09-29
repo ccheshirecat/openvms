@@ -12,9 +12,9 @@ OVMS defines a portable specification for packaging, distributing, and running f
 6. **Integrate with Huo**: Use RuntimePlugin in Huo to dispatch OVMS workloads to VMM plugins (e.g., Hypr adapter).
 
 ## Overview
-OVMS reuses OCI for distribution (manifests as OCI image manifests with custom media types). Artifacts are layered for efficiency: base disk + diffs + optional RAM snapshot for <10ms boots. Runtimes expose a minimal HTTP API for control. Huo integrates as the reference orchestrator via RuntimePlugin interface.
+OVMS reuses OCI for distribution (artifacts use OCI image manifests with custom media types and OCI 1.1 fields such as `artifactType` and `subject`). Artifacts are layered for efficiency: base disk + diffs + optional RAM snapshot for <10ms boots. Runtimes expose a minimal HTTP API for control. Huo integrates as the reference orchestrator via RuntimePlugin interface.
 
-See rfc/ovms-v0.1.md for full spec.
+See rfc/ovms-v0.1.md for full spec and media types (e.g., `application/vnd.ovms.manifest.v1+json`).
 
 ## Components
 - **Manifest**: JSON describing artifact (see examples/ubuntu-manifest.json).
