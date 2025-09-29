@@ -17,7 +17,7 @@ Define a portable Open Virtual Machine Spec (OVMS) for packaging, distributing, 
 
 {
   "schemaVersion": 1,
-  "mediaType": "application/vnd.hypr.ovms.manifest.v1+json",
+  "mediaType": "application/vnd.ovms.manifest.v1+json",
   "name": "hypr/ubuntu-base",
   "version": "24.04",
   "kernel": {
@@ -57,12 +57,12 @@ Notes
 - In Huo: Workload metadata includes "ovms_manifest": {"ref": "myregistry.com/ovms/ubuntu:24.04"}; vmm plugin fetches and applies.
 
 ## 2 — Media Types & OCI mapping
-- Manifest media type: application/vnd.hypr.ovms.manifest.v1+json (Huo parses with JSON schema).
-- RAM snapshot blob media type: application/vnd.hypr.ovms.ramsnap.v1+lz4 (decompress with lz4).
+- Manifest media type: application/vnd.ovms.manifest.v1+json (parsed via JSON schema). For OCI v1.1, set artifactType to this value and use subject for relationships.
+- RAM snapshot blob media type: application/vnd.ovms.ramsnap.v1+lz4 (decompress with lz4).
 - Disk layer media type: application/vnd.oci.image.layer.v1.tar with annotation ovms.format=qcow2/raw/ovfms.
-- Kernel blob type: application/vnd.hypr.ovms.kernel.v1.
-- Initrd blob type: application/vnd.hypr.ovms.initrd.v1.
-- Use OCI distribution API (v2) for push/pull. Huo uses oras/pkg for integration. New media types registered for OVMS while keeping OCI compatibility.
+- Kernel blob type: application/vnd.ovms.kernel.v1.
+- Initrd blob type: application/vnd.ovms.initrd.v1.
+- Use OCI distribution API (v2) for push/pull with ORAS. Prefer OCI 1.1 fields (artifactType, subject/referrers) for relationships.
 
 ## 3 — Layering model / snapshot model
 - Disk layers: Block-level diffs (qcow2 backing-file style) for dedupe and lazy fetch. Huo vmm plugin applies layers before start.
@@ -88,6 +88,8 @@ gRPC alternative: Define protobuf with RPCs: Start(ManifestRef) returns Instance
 
 Rationale: Small surface for quick runtime implementation. In Huo vmm plugin, use http.Client to call runtime API after exec hypr.
 
+OpenAPI: A normative OpenAPI document is provided at `spec/api/ovms-runtime.openapi.yaml` describing request/response schemas for `/start`, `/stop`, `/snapshot`, `/status/{instance_id}`, and `/logs/{instance_id}`.
+
 ## 5 — CLI UX (ovm)
 Basic commands for standalone use (skeleton in cli/ovm/main.go):
 - ovm pull hypr/ubuntu-base:24.04 — pulls manifest + blobs to local cache.
@@ -101,7 +103,10 @@ CLI uses OCI distribution for push/pull; local cache in OCI layout extended with
 
 ## 6 — Security & policy
 - Runtimes honor Linux security: namespaces, seccomp, user namespaces for management processes.
-- Sign manifests with Cosign; Huo verifies on pull.
+- Sign manifests with Cosign; Huo verifies on pull. OVMS artifacts SHOULD use OCI 1.1 relationships:
+  - `artifactType` = `application/vnd.ovms.manifest.v1+json` for OVMS manifests.
+  - Use `subject` and the Referrers API to relate signatures, SBOMs, and snapshots to the base manifest.
+  - Verification policy MAY require trusted signatures before runtime admission.
 - Access control: Registry ACLs + runtime-local policies (e.g., disallow unsigned ramSnapshot).
 - In Huo: Validate signatures in vmm plugin before start.
 

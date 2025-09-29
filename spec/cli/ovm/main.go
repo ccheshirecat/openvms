@@ -193,9 +193,9 @@ type OVMSManifest struct {
 		Size   int64  `json:"size"`
 	} `json:"diskLayers"`
 	RamSnapshot struct {
-		Ref          string `json:"ref"`
-		Compression  string `json:"compression"`
-		PreloadHint  bool   `json:"preload_hint"`
+		Ref           string `json:"ref"`
+		Compression   string `json:"compression"`
+		PreloadHint   bool   `json:"preload_hint"`
 		MlockRequired bool   `json:"mlock_required"`
 	} `json:"ramSnapshot"`
 	Devices []struct {
@@ -208,12 +208,12 @@ type OVMSManifest struct {
 		Author   string `json:"author"`
 		Created  string `json:"created"`
 		Platform struct {
-			Arch  string `json:"arch"`
-			Uefi  bool   `json:"uefi"`
+			Arch string `json:"arch"`
+			Uefi bool   `json:"uefi"`
 		} `json:"platform"`
 	} `json:"metadata"`
 	RuntimeHints struct {
-		PreferredRuntime []string `json:"preferredRuntime"`
-		ColdStartTargetMs int    `json:"coldStartTargetMs"`
+		PreferredRuntime  []string `json:"preferredRuntime"`
+		ColdStartTargetMs int      `json:"coldStartTargetMs"`
 	} `json:"runtimeHints"`
 }

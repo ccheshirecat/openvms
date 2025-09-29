@@ -1,0 +1,152 @@
+openapi: 3.0.3
+info:
+  title: OVMS Runtime Control API
+  version: 0.1.0
+  description: |
+    Minimal local control API exposed by OVMS-compatible runtimes.
+    Recommended transport is HTTP over UNIX domain socket. Authentication/authorization
+    are implementation-specific and out of scope for v0.1.
+servers:
+  - url: http://unix/
+paths:
+  /start:
+    post:
+      summary: Start an OVMS instance from a manifest reference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartRequest'
+      responses:
+        '200':
+          description: Started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceStatus'
+  /stop:
+    post:
+      summary: Stop a running instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopRequest'
+      responses:
+        '200':
+          description: Stopping
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResult'
+  /snapshot:
+    post:
+      summary: Create a RAM snapshot of a running instance and publish as OCI artifact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SnapshotRequest'
+      responses:
+        '200':
+          description: Snapshot created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SnapshotResult'
+  /status/{instance_id}:
+    get:
+      summary: Get status of an instance
+      parameters:
+        - name: instance_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Instance status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceStatus'
+  /logs/{instance_id}:
+    get:
+      summary: Stream logs from an instance
+      parameters:
+        - name: instance_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: NDJSON log stream
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+                description: One JSON record per line
+components:
+  schemas:
+    StartRequest:
+      type: object
+      required: [manifest]
+      properties:
+        manifest:
+          description: OCI reference or local path to OVMS manifest
+          type: string
+        overrides:
+          description: Optional runtime overrides (e.g., memory, CPUs)
+          type: object
+          additionalProperties: true
+    StopRequest:
+      type: object
+      required: [instance_id]
+      properties:
+        instance_id:
+          type: string
+    SnapshotRequest:
+      type: object
+      required: [instance_id]
+      properties:
+        instance_id:
+          type: string
+        tag:
+          type: string
+          description: Optional repository:tag for publishing snapshot
+    SnapshotResult:
+      type: object
+      required: [snapshot_ref]
+      properties:
+        snapshot_ref:
+          type: string
+          description: OCI digest or reference of the snapshot artifact
+    OperationResult:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, starting, stopping]
+        message:
+          type: string
+    InstanceStatus:
+      type: object
+      required: [instance_id, state]
+      properties:
+        instance_id:
+          type: string
+        state:
+          type: string
+          enum: [starting, running, stopping, stopped, error]
+        pid:
+          type: integer
+        uptime_ms:
+          type: integer
+        metrics:
+          type: object
+          additionalProperties: true

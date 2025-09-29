@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "mediaType": "application/vnd.hypr.ovms.manifest.v1+json",
+  "mediaType": "application/vnd.ovms.manifest.v1+json",
   "name": "hypr/ubuntu-base",
   "version": "24.04",
   "kernel": {
