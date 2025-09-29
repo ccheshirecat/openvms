@@ -20,10 +20,14 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Usage: ovm [pull|run|snapshot|push|inspect|ls] [args]")
+		log.Fatal("Usage: ovm [pull|run|snapshot|push|inspect|ls|convert] [args]")
 	}
 	cmd := os.Args[1]
 	switch cmd {
+	case "convert":
+		if err := convertCmd(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
 	case "pull":
 		if len(os.Args) < 3 {
 			log.Fatal("ovm pull <ref>")
