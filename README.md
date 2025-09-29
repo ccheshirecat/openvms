@@ -23,6 +23,9 @@ See rfc/ovms-v0.1.md for full spec and media types (e.g., `application/vnd.ovms.
 - **Adapters**: Guidance for implementing runtime adapters (see spec/runtimes/).
 - **Hacks**: OCI compatibility notes (see hacks/oci-compat.md).
 
+## Ecosystem (non‑normative)
+- Community tools that aid OVMS adoption are listed under docs/ecosystem. These are optional and independent. See docs/ecosystem/README.md.
+
 ## Security
 - Sign manifests with Cosign (see docs/signing/README.md). Use OCI Referrers and `subject` to relate signatures to manifests.
 - Runtimes use namespaces, seccomp for isolation.
